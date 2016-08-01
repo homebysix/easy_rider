@@ -155,9 +155,23 @@ class Popen(subprocess.Popen):
 def main():
     """Set up arguments and start processing."""
     args = get_argument_parser().parse_args()
-    autopkg_prefs = FoundationPlist.readPlist(
-        os.path.expanduser("~/Library/Preferences/com.github.autopkg.plist"))
-    MUNKI_REPO = autopkg_prefs.get("MUNKI_REPO")
+
+    autopkg_plist_path = "~/Library/Preferences/com.github.autopkg.plist"
+
+    # Read preferences.
+    if os.path.exists(os.path.expanduser(autopkg_plist_path)):
+        try:
+            autopkg_prefs = FoundationPlist.readPlist(
+                os.path.expanduser(autopkg_plist_path))
+            if "MUNKI_REPO" in autopkg_prefs:
+                MUNKI_REPO = autopkg_prefs["MUNKI_REPO"]
+            else:
+                print_error("No MUNKI_REPO key in AutoPkg preferences.")
+        except FoundationPlist.NSPropertyListSerializationException as e:
+            print_error("Error reading preferences: %s" % e)
+    else:
+        print_error("No file exists at %s." % autopkg_plist_path)
+
     production_cat = FoundationPlist.readPlist(
         os.path.join(MUNKI_REPO, "catalogs/%s" % args.catalog))
     pkginfo_template = (get_pkginfo_template(args.pkginfo) if args.pkginfo else
