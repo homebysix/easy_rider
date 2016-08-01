@@ -312,12 +312,12 @@ def make_override(recipe, override_dir):
     command = ["/usr/local/bin/autopkg", "make-override", recipe]
     if override_dir:
         command.insert(2, "--override-dir=%s" %
-                        os.path.realpath(override_dir))
+                       os.path.realpath(override_dir))
     # autopkg will offer to search for missing recipes, and wait for
     # input. Therefore, we use a short timeout to just skip any
     # recipes that are (probably) hung up on the prompt.
     proc = Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE)
+                 stderr=subprocess.PIPE)
     try:
         output, error = proc.communicate(timeout=3)
     except TimeoutError:
